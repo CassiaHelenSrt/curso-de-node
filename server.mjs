@@ -1,4 +1,4 @@
-import { createServer, request } from "http";
+import { createServer } from "http";
 
 const frase1 = Promise.resolve("Olá");
 const frase2 = Promise.resolve("Mundo");
@@ -10,8 +10,6 @@ for await (const frase of frasesPromise) {
     frases.push(frase);
 }
 
-// console.log(frases.join(""));
-
 const parte1 = Buffer.from("Olá");
 const parte2 = Buffer.from("Mundo");
 
@@ -20,38 +18,52 @@ const final = Buffer.concat([parte1, parte2]);
 console.log(final.toString("utf-8"));
 
 const server = createServer(async (request, response) => {
-    // response.statusCode = 404;
-    // response.end("Hello world");
-    response.setHeader("content-Type", "text/html");
-
     const url = new URL(request.url, "http://localhost");
 
-    // console.log(request.headers["content-type"]);
-    // console.log(request.rawHeaders);
+    // CORS — corrigido
+    response.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+    );
 
-    const cor = url.searchParams.get("cor");
-    const tamanho = url.searchParams.get("tamanho");
-    const chucks = [];
-    for await (const chuck of request) {
-        chucks.push(chuck);
+    let body = "";
+
+    // Só lê o body se NÃO for GET
+    if (request.method !== "GET") {
+        const chunks = [];
+        for await (const chunk of request) {
+            chunks.push(chunk);
+        }
+        body = Buffer.concat(chunks).toString("utf-8");
+
+        // Evita quebrar o servidor
+        try {
+            body = JSON.parse(body);
+        } catch {
+            body = null;
+        }
     }
 
-    const body = Buffer.concat(chucks).toString("utf-8");
+    if (request.method === "GET" && url.pathname === "/") {
+        response.writeHead(200, {
+            "Content-Type": "text/html; charset=utf-8",
+        });
 
-    console.log(JSON.parse(body).password);
-
-    if (request.method === "GET" && request.url === "/") {
-        response.statusCode = 200;
-        response.end("Home.");
-    } else if (request.method === "POST" && url.pathname === "/produtos") {
-        response.statusCode = 201;
-        response.end(`Produtos : ${cor}, ${tamanho}`);
-    } else {
-        response.statusCode = 404;
-        response.end("Nao encontrado.");
+        return response.end(`
+            <html>
+            <head><title>Mundo</title></head>
+            <body><h1>Olá Mundo</h1></body>
+            </html>
+        `);
     }
 
-    console.log(request.method);
+    if (request.method === "POST" && url.pathname === "/produtos") {
+        response.writeHead(201, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify({ ok: true, recebido: body }));
+    }
+
+    response.writeHead(404);
+    response.end("Nao encontrado.");
 });
 
 server.listen(3000, () => {
