@@ -5,6 +5,8 @@ const response = await fetch(
         headers: {
             "content-Type": "appliacation/json",
         },
+
+        body: JSON.stringify({ username: "andre", password: "123" }),
     }
 );
 
