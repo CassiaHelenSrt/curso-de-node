@@ -4,14 +4,21 @@ const server = createServer((request, response) => {
     // response.statusCode = 404;
     // response.end("Hello world");
     response.setHeader("content-Type", "text/html");
-    console.log(request.url);
+
+    const url = new URL(request.url, "http://localhost");
+
+    console.log(request.headers["content-type"]);
+    console.log(request.rawHeaders);
+
+    const cor = url.searchParams.get("cor");
+    const tamanho = url.searchParams.get("tamanho");
 
     if (request.method === "GET" && request.url === "/") {
         response.statusCode = 200;
         response.end("Home.");
-    } else if (request.method === "POST" && request.method === "/produtos") {
+    } else if (request.method === "POST" && url.pathname === "/produtos") {
         response.statusCode = 201;
-        response.end("Produto criado.");
+        response.end(`Produtos : ${cor}, ${tamanho}`);
     } else {
         response.statusCode = 404;
         response.end("Nao encontrado.");

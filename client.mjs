@@ -1,6 +1,12 @@
-const response = await fetch("http://localhost:3000/", {
-    method: "GET",
-});
+const response = await fetch(
+    "http://localhost:3000/produtos?cor=azul&tamanho=g",
+    {
+        method: "POST",
+        headers: {
+            "content-Type": "appliacation/json",
+        },
+    }
+);
 
 const body = await response.text();
 
