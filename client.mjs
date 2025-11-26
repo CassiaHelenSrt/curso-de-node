@@ -1,4 +1,4 @@
-const response = await fetch("http://localhost:3000", {
+const response = await fetch("http://localhost:3000/produto/notebook", {
     method: "GET",
     // headers: {
     //     "content-Type": "appliacation/json",
@@ -12,3 +12,5 @@ console.log(response);
 const body = await response.text();
 
 console.log(body);
+
+// console.log(body);
