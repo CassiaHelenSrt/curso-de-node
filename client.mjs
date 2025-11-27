@@ -1,11 +1,14 @@
-const response = await fetch("http://localhost:3000/produto/notebook", {
-    method: "GET",
-    // headers: {
-    //     "content-Type": "appliacation/json",
-    // },
+const response = await fetch(
+    "http://localhost:3000/produto/produto?cor=vermelho",
+    {
+        method: "POST",
+        // headers: {
+        //     "content-Type": "appliacation/json",
+        // },
 
-    // body: JSON.stringify({ username: "andre", password: "123" }),
-});
+        // body: JSON.stringify({ username: "andre", password: "123" }),
+    }
+);
 
 console.log(response);
 

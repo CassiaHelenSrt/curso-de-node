@@ -1,5 +1,29 @@
 import { createServer } from "http";
-import { routes } from "./.vscode/router.mjs";
+import { Router } from "./.vscode/router.mjs";
+import { customResponse } from "./custom-response.mjs";
+import { customRequest } from "./custom-request.mjs";
+
+const router = new Router();
+
+router.get("/", (req, response) => {
+    response.status(200).end("home");
+});
+
+router.get("/produto/notebook", (req, response) => {
+    response.status(200).end("Produtos- Notebook");
+});
+
+router.post("/produto", (req, response) => {
+    const cor = request.query.get("cor");
+    response.status(201).json({ nome: "Notebook", cor });
+});
+
+// function postProduto(request, response) {
+//     const cor = request.query.get("cor");
+//     response.status(201).json({ nome: "Notebook", cor });
+// }
+
+console.log(router.routes);
 
 const frase1 = Promise.resolve("Olá");
 const frase2 = Promise.resolve("Mundo");
@@ -19,20 +43,16 @@ const final = Buffer.concat([parte1, parte2]);
 console.log(final.toString("utf-8"));
 
 const server = createServer(async (request, response) => {
-    const url = new URL(request.url, "http://localhost");
+    const req = await customRequest(request);
+    const res = customResponse(response);
 
-    console.log("oi", url);
+    const handler = router.find(request.method, req.pathname);
 
-    // response.setHeader(
-    //     "Access-Control-Allow-Headers",
-    //     "Content-Type, Authorization"
-    // );
-    const handler = routes[request.method][url.pathname];
+    console.log(handler);
     if (handler) {
         handler(request, response);
     } else {
-        response.statusCode = 404;
-        response.end("Não encontrado");
+        res.statusCode(404).end("Não encontrado");
     }
 });
 
