@@ -1,3 +1,16 @@
+const produtosResp = await fetch("http://localhost:3000/produtos");
+const produtos = await produtosResp.json();
+
+console.log(produtosResp);
+console.log(produtos);
+
+// const notebookResp = await fetch(
+//     "http://localhost:3000/produto?categoria=eletronicos&slug=notebooks"
+// );
+// const notebook = await notebookResp.json();
+
+// console.log(notebook);
+
 const response = await fetch("http://localhost:3000/produtos", {
     method: "POST",
     headers: {
