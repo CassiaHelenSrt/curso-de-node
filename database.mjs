@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 
-const db = new DatabaseSync("./db.sqlite");
+const db = new DatabaseSync("./lm.sqlite");
 
 db.exec(`
     PRAGMA foreign_keys = 1;
@@ -13,28 +13,36 @@ db.exec(`
 `);
 
 db.exec(/*sql*/ `
-    CREATE TABLE IF NOT EXISTS produtos (
-        slug TEXT PRIMARY KEY,
-        nome TEXT NOT NULL,
-        categoria TEXT NOT NULL,
-        preco INTEGER NOT NULL
-    )
+   CREATE TABLE IF NOT EXISTS "cursos" (
+      "id" INTEGER PRIMARY KEY,
+      "slug" TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      "nome" TEXT NOT NULL,
+      "descricao" TEXT NOT NULL
+    ) STRICT;
+
+`);
+db.exec(/*sql*/ `
+ CREATE TABLE IF NOT EXISTS "aulas" (
+      "id" INTEGER PRIMARY KEY,
+      "curso_id" INTEGER NOT NULL,
+      "slug" TEXT NOT NULL COLLATE NOCASE,
+      "nome" TEXT NOT NULL,
+      FOREIGN KEY("curso_id") REFERENCES "cursos" ("id"),
+      UNIQUE("curso_id", "slug")
+    ) STRICT;
+
 `);
 
-const insert = db.prepare(`
-    INSERT INTO produtos (slug, nome, categoria, preco)
-    VALUES (?, ?, ?, ?)
-`);
-
-// eles estao comentados porque nao pode inserir duas vezes
-
-// insert.run("noteboock", "Noteboock", "eletronicos", 500);
-// insert.run("notebook-2", "Notebook", "eletronicos", 500);
-// insert.run("mouse", "Mouse", "eletronicos", 50);
-
-const produtos = db.prepare(`SELECT * FROM "produtos"`).all();
-
-const produto = db
-    .prepare(`SELECT * FROM produtos WHERE "slug" = ?`)
-    .get("mouse");
-console.log(produto);
+export function criarCurso({ slug, nome, descricao }) {
+    try {
+        db.prepare(
+            `
+        INSERT OR IGNORE INTO "cursos"("slug", "nome", "descricao")
+        VALUES (?, ?, ?)
+    `
+        ).run(slug, nome, descricao);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
