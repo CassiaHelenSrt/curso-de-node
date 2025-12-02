@@ -3,6 +3,16 @@ import { DatabaseSync } from "node:sqlite";
 const db = new DatabaseSync("./db.sqlite");
 
 db.exec(`
+    PRAGMA foreign_keys = 1;
+    PRAGMA journal_mode = WAL;
+    PRAGMA synchronous = NORMAL;
+
+    PRAGMA cache_size = 2000;
+    PRAGMA busy_timeout = 5000;
+    PRAGMA temp_store = MEMORY;
+`);
+
+db.exec(/*sql*/ `
     CREATE TABLE IF NOT EXISTS produtos (
         slug TEXT PRIMARY KEY,
         nome TEXT NOT NULL,
@@ -23,6 +33,7 @@ const insert = db.prepare(`
 // insert.run("mouse", "Mouse", "eletronicos", 50);
 
 const produtos = db.prepare(`SELECT * FROM "produtos"`).all();
+
 const produto = db
     .prepare(`SELECT * FROM produtos WHERE "slug" = ?`)
     .get("mouse");
