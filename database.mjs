@@ -35,12 +35,78 @@ db.exec(/*sql*/ `
 
 export function criarCurso({ slug, nome, descricao }) {
     try {
-        db.prepare(
-            `
+        return db
+            .prepare(
+                `
         INSERT OR IGNORE INTO "cursos"("slug", "nome", "descricao")
         VALUES (?, ?, ?)
     `
-        ).run(slug, nome, descricao);
+            )
+            .run(slug, nome, descricao);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function criarAula({ slug, nome, cursoSlug }) {
+    try {
+        return db
+            .prepare(
+                `
+            INSERT OR IGNORE INTO "aulas"("slug", "nome", "curso_id")
+            VALUES (?, ?, (SELECT "id" FROM "cursos" WHERE "slug" = ?))
+            `
+            )
+            .run(slug, nome, cursoSlug); // aqui é cursoSlug
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function pegarCursos() {
+    try {
+        return db
+            .prepare(
+                `
+            SELECT * FROM "cursos"
+            `
+            )
+            .all();
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function pegarCurso(slug) {
+    try {
+        return db
+            .prepare(
+                `
+            SELECT * FROM "cursos" WHERE "slug" = ?
+            `
+            )
+            .get(slug);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function pegarAulas(cursoSlug) {
+    try {
+        return db
+            .prepare(
+                `
+                SELECT * FROM "aulas"
+                WHERE "curso_id" = (
+                    SELECT "id" FROM "cursos" WHERE "slug" = ?
+                )
+                `
+            )
+            .all(cursoSlug); // <-- aqui passar o valor
     } catch (error) {
         console.log(error);
         return null;

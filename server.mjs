@@ -3,6 +3,10 @@ import { Router } from "./.vscode/router.mjs";
 import { customResponse } from "./custom-response.mjs";
 import { customRequest } from "./custom-request.mjs";
 import { criarCurso } from "./database.mjs/";
+import { criarAula } from "./database.mjs/";
+import { pegarCursos } from "./database.mjs/";
+import { pegarCurso } from "./database.mjs/";
+import { pegarAulas } from "./database.mjs/";
 
 const router = new Router();
 
@@ -16,10 +20,49 @@ router.post("/cursos", (req, res) => {
         res.status(201).json("erro ao criar curso");
     }
 });
-router.get("/cursos", (req, res) => {});
-router.get("/curso", (req, res) => {});
-router.post("/aulas", (req, res) => {});
-router.get("/aulas", (req, res) => {});
+
+router.post("/aulas", (req, res) => {
+    const { slug, nome, cursoSlug } = req.body;
+    const criado = criarAula({ slug, nome, cursoSlug });
+
+    if (criado) {
+        res.status(201).json("Aula criado");
+    } else {
+        res.status(201).json("erro ao criar aula");
+    }
+});
+
+router.get("/cursos", (req, res) => {
+    const cursos = pegarCursos();
+    if (cursos && cursos.length) {
+        res.status(200).json(cursos);
+    } else {
+        res.status(404).json({ erro: "Cursos não encontrados" });
+    }
+});
+
+router.get("/curso", (req, res) => {
+    const slug = req.query.get("slug");
+    const curso = pegarCurso(slug);
+    if (curso) {
+        res.status(200).json(curso);
+    } else {
+        res.status(404).json({ erro: "Curso não encontrado" });
+    }
+});
+
+router.get("/aulas", (req, res) => {
+    const curso = req.query.get("curso");
+
+    const aulas = pegarAulas(curso);
+
+    if (aulas && aulas.length) {
+        res.status(200).json(aulas);
+    } else {
+        res.status(404).json({ erro: "aulas não encontrado" });
+    }
+});
+
 router.get("/aula", (req, res) => {});
 
 const server = createServer(async (request, response) => {
