@@ -112,3 +112,21 @@ export function pegarAulas(cursoSlug) {
         return null;
     }
 }
+
+export function pegarAula(cursoSlug, aulaSlug) {
+    try {
+        return db
+            .prepare(
+                `
+                SELECT * FROM "aulas"
+                WHERE "curso_id" = (
+                    SELECT "id" FROM "cursos" WHERE "slug" = ?
+                ) AND "slug" = ?
+                `
+            )
+            .get(cursoSlug, aulaSlug); // <-- aqui passar o valor
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}

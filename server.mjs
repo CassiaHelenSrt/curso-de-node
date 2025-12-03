@@ -7,6 +7,7 @@ import { criarAula } from "./database.mjs/";
 import { pegarCursos } from "./database.mjs/";
 import { pegarCurso } from "./database.mjs/";
 import { pegarAulas } from "./database.mjs/";
+import { pegarAula } from "./database.mjs/";
 
 const router = new Router();
 
@@ -63,7 +64,18 @@ router.get("/aulas", (req, res) => {
     }
 });
 
-router.get("/aula", (req, res) => {});
+router.get("/aula", (req, res) => {
+    const curso = req.query.get("curso");
+    const slug = req.query.get("slug");
+
+    const aula = pegarAula(curso, slug);
+
+    if (aula) {
+        res.status(200).json(aula);
+    } else {
+        res.status(404).json({ erro: "aula não encontrado" });
+    }
+});
 
 const server = createServer(async (request, response) => {
     const req = await customRequest(request);

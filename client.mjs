@@ -18,16 +18,22 @@ await fetch(base + "/aulas", {
         "Content-Type": "application/json",
     },
     body: JSON.stringify({
-        slug: "variaveis",
-        nome: "Variáveis",
+        slug: "arrays",
+        nome: "arrays",
         cursoSlug: "javascript",
     }),
 });
 
+const aula = await fetch(base + "/aula?curso=javascript&slug=arrays").then(
+    (r) => r.json()
+);
+
+console.log("arrays", aula);
+
 const aulas = await fetch(base + "/aulas?curso=javascript").then((r) =>
     r.json()
 );
-console.log(aulas);
+// console.log(aulas);
 
 const curso = await fetch(base + "/curso?slug=html").then((r) => r.json());
 // console.log(curso);
