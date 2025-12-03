@@ -1,13 +1,15 @@
 import { createServer } from "http";
-import { Router } from "./.vscode/router.mjs";
-import { customResponse } from "./custom-response.mjs";
-import { customRequest } from "./custom-request.mjs";
-import { criarCurso } from "./database.mjs/";
-import { criarAula } from "./database.mjs/";
-import { pegarCursos } from "./database.mjs/";
-import { pegarCurso } from "./database.mjs/";
-import { pegarAulas } from "./database.mjs/";
-import { pegarAula } from "./database.mjs/";
+import { Router } from "./router.js";
+import { customResponse } from "./custom-response.js";
+import { customRequest } from "./custom-request.js";
+import {
+    criarCurso,
+    criarAula,
+    pegarCursos,
+    pegarCurso,
+    pegarAulas,
+    pegarAula,
+} from "./database.js";
 
 const router = new Router();
 
@@ -82,7 +84,7 @@ const server = createServer(async (request, response) => {
 
     const res = customResponse(response);
 
-    const handler = router.find(request.method, req.pathname);
+    const handler = router.find(request.method || "", req.pathname);
 
     if (handler) {
         handler(req, res); // ✔ CORRETO

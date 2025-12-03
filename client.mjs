@@ -6,9 +6,9 @@ await fetch(base + "/cursos", {
         "Content-Type": "application/json",
     },
     body: JSON.stringify({
-        slug: "html",
-        nome: "html",
-        descricao: "Curso html",
+        slug: "ruby",
+        nome: "ruby",
+        descricao: "Introdução rudy",
     }),
 });
 
@@ -18,9 +18,9 @@ await fetch(base + "/aulas", {
         "Content-Type": "application/json",
     },
     body: JSON.stringify({
-        slug: "arrays",
-        nome: "arrays",
-        cursoSlug: "javascript",
+        slug: "indroducao ruby",
+        nome: "Indrodução ruby",
+        cursoSlug: "ruby",
     }),
 });
 
@@ -28,14 +28,12 @@ const aula = await fetch(base + "/aula?curso=javascript&slug=arrays").then(
     (r) => r.json()
 );
 
-console.log("arrays", aula);
+console.log(aula);
 
-const aulas = await fetch(base + "/aulas?curso=javascript").then((r) =>
-    r.json()
-);
-// console.log(aulas);
+const aulas = await fetch(base + "/aulas?curso=ruby").then((r) => r.json());
+console.log("aulas", aulas);
 
-const curso = await fetch(base + "/curso?slug=html").then((r) => r.json());
+const curso = await fetch(base + "/curso?slug=css").then((r) => r.json());
 // console.log(curso);
 
 const cursos = await fetch(base + "/cursos").then((r) => r.json());
