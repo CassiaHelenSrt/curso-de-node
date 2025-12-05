@@ -1,7 +1,6 @@
 const base = "http://localhost:3000";
 
 setTimeout(async () => {
-    const response = await fetch(base + "/");
-
-    console.log(response, "ok");
+    const reponse = await fetch(base + "/");
+    console.log(reponse.ok, reponse.status);
 }, 200);
