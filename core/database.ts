@@ -1,18 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 
-const db = new DatabaseSync("./lm.sqlite");
-
-type CursoData = {
-    slug: string;
-    nome: string;
-    descricao: string;
-};
-
-type AulaData = {
-    slug: string;
-    nome: string;
-    cursoSlug: string;
-};
+const db = new DatabaseSync("./lms.sqlite");
 
 db.exec(`
     PRAGMA foreign_keys = 1;
@@ -22,19 +10,15 @@ db.exec(`
     PRAGMA cache_size = 2000;
     PRAGMA busy_timeout = 5000;
     PRAGMA temp_store = MEMORY;
-`);
 
-db.exec(/*sql*/ `
-   CREATE TABLE IF NOT EXISTS "cursos" (
+    CREATE TABLE IF NOT EXISTS "cursos" (
       "id" INTEGER PRIMARY KEY,
       "slug" TEXT NOT NULL COLLATE NOCASE UNIQUE,
       "nome" TEXT NOT NULL,
       "descricao" TEXT NOT NULL
     ) STRICT;
-`);
 
-db.exec(/*sql*/ `
- CREATE TABLE IF NOT EXISTS "aulas" (
+    CREATE TABLE IF NOT EXISTS "aulas" (
       "id" INTEGER PRIMARY KEY,
       "curso_id" INTEGER NOT NULL,
       "slug" TEXT NOT NULL COLLATE NOCASE,
@@ -42,16 +26,18 @@ db.exec(/*sql*/ `
       FOREIGN KEY("curso_id") REFERENCES "cursos" ("id"),
       UNIQUE("curso_id", "slug")
     ) STRICT;
-`);
+  `);
 
-export function criarCurso({ slug, nome, descricao }: CursoData) {
+export function criarCurso({ slug, nome, descricao }) {
     try {
         return db
             .prepare(
                 `
-            INSERT OR IGNORE INTO "cursos"("slug", "nome", "descricao")
-            VALUES (?, ?, ?)
-        `
+    INSERT OR IGNORE INTO "cursos"
+      ("slug", "nome", "descricao")
+    VALUES
+      (?,?,?)
+    `
             )
             .run(slug, nome, descricao);
     } catch (error) {
@@ -60,14 +46,16 @@ export function criarCurso({ slug, nome, descricao }: CursoData) {
     }
 }
 
-export function criarAula({ slug, nome, cursoSlug }: AulaData) {
+export function criarAula({ slug, nome, cursoSlug }) {
     try {
         return db
             .prepare(
                 `
-            INSERT OR IGNORE INTO "aulas"("slug", "nome", "curso_id")
-            VALUES (?, ?, (SELECT "id" FROM "cursos" WHERE "slug" = ?))
-        `
+    INSERT OR IGNORE INTO "aulas"
+      ("slug", "nome", "curso_id")
+    VALUES
+      (?,?,(SELECT "id" FROM "cursos" WHERE "slug" = ?))
+    `
             )
             .run(slug, nome, cursoSlug);
     } catch (error) {
@@ -77,35 +65,61 @@ export function criarAula({ slug, nome, cursoSlug }: AulaData) {
 }
 
 export function pegarCursos() {
-    return db.prepare(`SELECT * FROM "cursos"`).all();
-}
-
-export function pegarCurso(slug: string) {
-    return db.prepare(`SELECT * FROM "cursos" WHERE "slug" = ?`).get(slug);
-}
-
-export function pegarAulas(cursoSlug: string) {
-    return db
-        .prepare(
-            `
-        SELECT * FROM "aulas"
-        WHERE "curso_id" = (
-            SELECT "id" FROM "cursos" WHERE "slug" = ?
-        )
+    try {
+        return db
+            .prepare(
+                `
+      SELECT * FROM "cursos"
     `
-        )
-        .all(cursoSlug);
+            )
+            .all();
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
-export function pegarAula(cursoSlug: string, aulaSlug: string) {
-    return db
-        .prepare(
-            `
-        SELECT * FROM "aulas"
-        WHERE "curso_id" = (
-            SELECT "id" FROM "cursos" WHERE "slug" = ?
-        ) AND "slug" = ?
+export function pegarCurso(slug) {
+    try {
+        return db
+            .prepare(
+                `
+      SELECT * FROM "cursos" WHERE "slug" = ?
     `
-        )
-        .get(cursoSlug, aulaSlug);
+            )
+            .get(slug);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function pegarAulas(cursoSlug) {
+    try {
+        return db
+            .prepare(
+                `
+      SELECT * FROM "aulas" WHERE "curso_id" = (SELECT "id" FROM "cursos" WHERE "slug" = ?)
+    `
+            )
+            .all(cursoSlug);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function pegarAula(cursoSlug, aulaSlug) {
+    try {
+        return db
+            .prepare(
+                `
+      SELECT * FROM "aulas" WHERE "curso_id" = (SELECT "id" FROM "cursos" WHERE "slug" = ?) AND "slug" = ?
+    `
+            )
+            .get(cursoSlug, aulaSlug);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }

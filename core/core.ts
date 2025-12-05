@@ -4,9 +4,9 @@ import {
     type ServerResponse,
     type Server,
 } from "node:http";
-import { Router } from "./router";
-import { customRequest } from "./http/custom-request";
-import { customResponse } from "./http/custom-response";
+import { Router } from "./router.ts";
+import { customRequest } from "./http/custom-request.ts";
+import { customResponse } from "./http/custom-response.ts";
 
 export class Core {
     router: Router;
