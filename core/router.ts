@@ -10,12 +10,24 @@ export class Router {
     routes = {
         GET: {},
         POST: {},
+        PUT: {},
+        DELETE: {},
+        READ: {},
     };
     get(route: string, handler: Handler) {
         this.routes["GET"][route] = handler;
     }
     post(route: string, handler: Handler) {
         this.routes["POST"][route] = handler;
+    }
+    put(route: string, handler: Handler) {
+        this.routes["PUT"][route] = handler;
+    }
+    delete(route: string, handler: Handler) {
+        this.routes["READ"][route] = handler;
+    }
+    head(route: string, handler: Handler) {
+        this.routes["DELETE"][route] = handler;
     }
     find(method: string, pathname: string) {
         const routesByMethod = this.routes[method];
@@ -24,7 +36,7 @@ export class Router {
 
         const matchedRoute = routesByMethod[pathname];
 
-        if (matchedRoute) return matchedRoute;
+        if (matchedRoute) return { route: matchedRoute, params: {} };
 
         const reqParts = pathname.split("/").filter(Boolean);
 
@@ -35,7 +47,8 @@ export class Router {
             if (reqParts.length !== routeParts.length) continue;
             if (reqParts[0] !== routeParts[0]) continue;
 
-            const params = {};
+            const params: Record<string, string> = {};
+            const ok = true;
 
             for (let i = 0; i < reqParts.length; i++) {
                 const segment = routeParts[i];
@@ -48,7 +61,7 @@ export class Router {
                     break;
                 }
 
-                console.log(params);
+                // console.log(params);
             }
 
             if (ok) {
@@ -59,6 +72,6 @@ export class Router {
             // console.log(reqParts);
         }
 
-        return null;
+        return { route: routesByMethod[route], params };
     }
 }

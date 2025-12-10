@@ -3,8 +3,10 @@ import { pegarCurso } from "./core/database.ts";
 
 const core = new Core();
 
-core.router.get("/curso/:curso", (req, res) => {
-    const slug = req.query.get("slug");
+core.router.get("/curso/:slug", (req, res) => {
+    const { slug } = req.params;
+
+    console.log(slug);
     const curso = pegarCurso(slug);
     if (curso) {
         res.status(200).json(curso);
@@ -23,7 +25,7 @@ core.router.get("/curso/:curso/pegar", (req, res) => {
     }
 });
 
-core.router.get("/curso/:curso/delete", (req, res) => {
+core.router.get("/curso/:curso/deletar", (req, res) => {
     const slug = req.query.get("slug");
     const curso = pegarCurso(slug);
     if (curso) {
