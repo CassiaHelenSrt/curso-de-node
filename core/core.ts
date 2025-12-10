@@ -19,6 +19,10 @@ export class Core {
         const req = await customRequest(request);
         const res = customResponse(response);
 
+        for (const middleware of this.router.middleware) {
+            await middleware(req, res);
+        }
+
         const matched = this.router.find(req.method || "", req.pathname);
 
         if (!matched) {
@@ -29,7 +33,11 @@ export class Core {
 
         req.params = params;
 
-        await route(req, res);
+        for (const middleware of route.middleware) {
+            await middleware(req, res);
+        }
+
+        await route.handler(req, res);
     };
     init() {
         this.server.listen(3000, () => {
