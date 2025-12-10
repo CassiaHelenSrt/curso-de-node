@@ -22,7 +22,7 @@ export class Core {
         const matched = this.router.find(req.method || "", req.pathname);
 
         if (!matched) {
-            return res.status(404).end("Não encontrada");
+            return res.status(404).end("nao encontrada");
         }
 
         const { route, params } = matched;

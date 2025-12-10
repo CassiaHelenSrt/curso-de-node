@@ -65,7 +65,7 @@ export class Router {
             }
 
             if (ok) {
-                return routesByMethod[route];
+                return { route: routesByMethod[route], params };
             }
 
             // console.log(routeParts);
