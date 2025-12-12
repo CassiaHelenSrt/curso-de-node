@@ -7,12 +7,14 @@ import {
 import { Router } from "./router.ts";
 import { customRequest } from "./http/custom-request.ts";
 import { customResponse } from "./http/custom-response.ts";
+import { bodyJson } from "./middleware/body-json.ts";
 
 export class Core {
     router: Router;
     server: Server;
     constructor() {
         this.router = new Router();
+        this.router.use([bodyJson]);
         this.server = createServer(this.handler);
     }
     handler = async (request: IncomingMessage, response: ServerResponse) => {
