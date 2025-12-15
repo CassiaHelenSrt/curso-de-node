@@ -10,13 +10,16 @@ import { customResponse } from "./http/custom-response.ts";
 import { bodyJson } from "./middleware/body-json.ts";
 import { console } from "node:inspector";
 import { RouteError } from "./utils/route-erro.ts";
+import { Database } from "./database.ts";
 
 export class Core {
     router: Router;
     server: Server;
+    db: Database;
     constructor() {
         this.router = new Router();
         this.router.use([bodyJson]);
+        this.db = new Database("./lms.sqlite");
         this.server = createServer(this.handler);
     }
     handler = async (request: IncomingMessage, response: ServerResponse) => {
