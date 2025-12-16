@@ -1,7 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
 
-const db = new DatabaseSync("./lms.sqlite");
-
 export class Database extends DatabaseSync {
     constructor(path: string) {
         super(path);

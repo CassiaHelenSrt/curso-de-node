@@ -15,24 +15,22 @@ core.db.exec(`
 
     INSERT OR IGNORE INTO "products"
     ("name", "slug", "price") VALUES
-    ('Cabeca', 'cabeca', 300);
+    ('Noteboock', 'noteboock', 300);
 `);
 
-// core.router.get("/products/:slug", (req, res) => {
-//     const { slug } = req.params;
+core.router.get("/products/:slug", (req, res) => {
+    const { slug } = req.params;
 
-//     const product = core.db
-//         .prepare(`SELECT * FROM "product" WHERE "slug" = ?`)
-//         .get(slug);
+    const product = core.db
+        .prepare(`SELECT * FROM "products" WHERE "slug" = ?`)
+        .get(slug);
 
-//     console.log("produto buscado:", slug);
+    if (!product) {
+        throw new RouteError(404, "Produto não encontrado");
+    }
 
-//     if (!product) {
-//         throw new RouteError(404, "Produto não encontrado");
-//     }
-
-//     res.status(200).json(product);
-// });
+    res.status(200).json(product);
+});
 
 // core.router.get(
 //     "/curso/:curso/pegar",
