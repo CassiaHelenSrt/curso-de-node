@@ -22,7 +22,7 @@ core.router.get("/products/:slug", (req, res) => {
     const { slug } = req.params;
 
     const product = core.db
-        .prepare(`SELECT * FROM "products" WHERE "slug" = ?`)
+        .query(`SELECT * FROM "products" WHERE "slug" = ?`)
         .get(slug);
 
     if (!product) {

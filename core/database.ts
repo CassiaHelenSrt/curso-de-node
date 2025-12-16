@@ -1,8 +1,10 @@
-import { DatabaseSync } from "node:sqlite";
+import { DatabaseSync, type StatementSync } from "node:sqlite";
 
 export class Database extends DatabaseSync {
+    queries: Record<string, StatementSync>;
     constructor(path: string) {
         super(path);
+        this.queries = {};
 
         this.exec(`
               PRAGMA foreign_keys = 1;
@@ -14,5 +16,13 @@ export class Database extends DatabaseSync {
     PRAGMA temp_store = MEMORY;
 
             `);
+    }
+
+    query(sql: string) {
+        console.log(this.queries);
+        if (!this.queries[sql]) {
+            this.queries[sql] = this.prepare(sql);
+        }
+        return this.queries[sql];
     }
 }
