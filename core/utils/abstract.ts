@@ -1,4 +1,5 @@
 import { Core } from "../core.ts";
+import type { Handler } from "../router.ts";
 
 export abstract class CoreProvider {
     core: Core;
@@ -13,6 +14,7 @@ export abstract class CoreProvider {
 }
 
 export abstract class Api extends CoreProvider {
+    handlers: Record<string, Handler> = {};
     /** utilize para criar as tabelas */
     tables() {}
 
@@ -20,7 +22,7 @@ export abstract class Api extends CoreProvider {
     routes() {}
 
     init() {
-        this.tables;
-        this.routes;
+        this.tables();
+        this.routes();
     }
 }
