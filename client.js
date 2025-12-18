@@ -22,7 +22,36 @@ const functions = {
         const body = await response.json();
         console.table(body);
     },
+
+    async postLesson() {
+        const response = await fetch(base + "/lms/lessons", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                courseSlug: "html-e-css-2",
+                slug: "tecnica-basicas",
+                title: "Tecnica Basicas",
+                seconds: 200,
+                video: "/html/tags-basicas.mp4",
+                description: "Aula sobre as tags basicas",
+                order: 1,
+                free: 1,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            console.error("Erro ao criar aula:", error);
+            return;
+        }
+
+        const body = await response.json();
+        console.table(body);
+    },
 };
+
 const fn = process.argv[2];
 
 if (!functions[fn]) {
