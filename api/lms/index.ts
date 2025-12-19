@@ -91,6 +91,6 @@ export class LmsApi extends Api {
 
     routes(): void {
         this.router.post("/lms/courses", this.handlers.postCourses);
-        this.router.post("/lms/lessons", this.handlers.postCourses);
+        this.router.post("/lms/lessons", this.handlers.postLessons);
     }
 }
