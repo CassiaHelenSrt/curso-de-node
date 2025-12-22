@@ -1,23 +1,22 @@
 import { Api } from "../../core/utils/abstract.ts";
 import { RouteError } from "../../core/utils/route-erro.ts";
+import { LmsQuery } from "./query.ts";
+
 import { lmsTables } from "./tables.ts";
 
 export class LmsApi extends Api {
+    query = new LmsQuery(this.db);
     handlers = {
         postCourses: (req, res) => {
             const { slug, title, description, lessons, hours } = req.body;
 
-            const writeResult = this.db
-                .query(
-                    /*sql*/ `
-                    INSERT OR IGNORE INTO "courses"
-                    ("slug", "title", "description","lessons", "hours")
-                    VALUES (?, ?, ?, ?, ?)
-                    `
-                )
-                .run(slug, title, description, lessons, hours);
-
-            console.log(writeResult);
+            const writeResult = this.query.insertCourse(
+                slug,
+                title,
+                description,
+                lessons,
+                hours
+            );
 
             /*quando ja existe este curso criado retorna esse error*/
             if (writeResult.changes === 0) {

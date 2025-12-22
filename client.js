@@ -4,8 +4,8 @@ const base = "http://localhost:3000";
 
 const courses = {
     html: {
-        slug: "html-e-css",
-        title: "HTML e CSS",
+        slug: "html-e-css5",
+        title: "HTML e CSS5",
         description: "Curso de HTML e CSS para Iniciantes",
         lessons: 40,
         hours: 10,
