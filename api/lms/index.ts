@@ -7,16 +7,16 @@ import { lmsTables } from "./tables.ts";
 export class LmsApi extends Api {
     query = new LmsQuery(this.db);
     handlers = {
-        postCourses: (req, res) => {
+        postCourse: (req, res) => {
             const { slug, title, description, lessons, hours } = req.body;
 
-            const writeResult = this.query.insertCourse(
+            const writeResult = this.query.insertCourse({
                 slug,
                 title,
                 description,
                 lessons,
-                hours
-            );
+                hours,
+            });
 
             /*quando ja existe este curso criado retorna esse error*/
             if (writeResult.changes === 0) {
@@ -30,7 +30,7 @@ export class LmsApi extends Api {
             });
         },
 
-        postLessons: (req, res) => {
+        postLesson: (req, res) => {
             const {
                 courseSlug,
                 slug,
@@ -42,36 +42,16 @@ export class LmsApi extends Api {
                 free,
             } = req.body;
 
-            const writeResult = this.db
-                .prepare(
-                    /*sql*/ `
-            INSERT INTO "lessons"
-            (
-                "course_id",
-                "slug",
-                "title",
-                "seconds",
-                "video",
-                "description",
-                "order",
-                "free"
-            )
-            VALUES (
-                (SELECT "id" FROM "courses" WHERE "slug" = ?),
-                ?, ?, ?, ?, ?, ?, ?
-            )
-            `
-                )
-                .run(
-                    courseSlug,
-                    slug,
-                    title,
-                    seconds,
-                    video,
-                    description,
-                    order,
-                    free
-                );
+            const writeResult = this.query.insertLesson({
+                courseSlug,
+                slug,
+                title,
+                seconds,
+                video,
+                description,
+                order,
+                free,
+            });
 
             if (writeResult.changes === 0) {
                 throw new RouteError(400, "Erro ao criar aula");
@@ -82,6 +62,16 @@ export class LmsApi extends Api {
                 title: "Aula criada com sucesso",
             });
         },
+
+        getCourses: (req, res) => {
+            const courses = this.query.selectCourses();
+
+            if (courses.length === 0) {
+                throw new RouteError(404, "Nenhum curso encontrado");
+            }
+
+            res.status(200).json(courses);
+        },
     } satisfies Api["handlers"];
 
     tables(): void {
@@ -89,7 +79,9 @@ export class LmsApi extends Api {
     }
 
     routes(): void {
-        this.router.post("/lms/courses", this.handlers.postCourses);
-        this.router.post("/lms/lessons", this.handlers.postLessons);
+        this.router.post("/lms/course", this.handlers.postCourse);
+        this.router.get("/lms/courses", this.handlers.getCourses);
+        // this.router.get("/lms/course/:slug", this.handlers.getCourse);
+        this.router.post("/lms/lesson", this.handlers.postLesson);
     }
 }

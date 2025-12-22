@@ -4,8 +4,8 @@ const base = "http://localhost:3000";
 
 const courses = {
     html: {
-        slug: "html-e-css5",
-        title: "HTML e CSS5",
+        slug: "html-e-css",
+        title: "HTML e CSS",
         description: "Curso de HTML e CSS para Iniciantes",
         lessons: 40,
         hours: 10,
@@ -148,7 +148,7 @@ const lessons = [
 
 const functions = {
     async postCourses() {
-        const response = await fetch(base + "/lms/courses", {
+        const response = await fetch(base + "/lms/course", {
             method: "POST",
             headers: {
                 "content-type": "application/json",
@@ -162,7 +162,7 @@ const functions = {
     },
 
     async postLesson(lesson) {
-        const response = await fetch(base + "/lms/lessons", {
+        const response = await fetch(base + "/lms/lesson", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -178,6 +178,12 @@ const functions = {
 
         const body = await response.json();
         console.table(body);
+    },
+
+    async getCourses() {
+        const response = await fetch(base + "/lms/courses");
+        const body = await response.json();
+        console.log(body);
     },
 };
 
