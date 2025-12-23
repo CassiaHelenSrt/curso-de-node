@@ -1,5 +1,4 @@
 import { Query } from "../../core/utils/abstract.ts";
-import { RouteError } from "../../core/utils/route-erro.ts";
 
 type CourseData = {
     id: number;
@@ -11,6 +10,8 @@ type CourseData = {
     created: string;
 };
 
+type CourseCreate = Omit<CourseData, "id" | "created">;
+
 type LessonData = {
     id: number;
     course_id: number;
@@ -20,11 +21,10 @@ type LessonData = {
     video: string;
     description: string;
     order: number;
-    free: number;
+    free: number; // 0/1
     created: string;
 };
 
-type CourseCreate = Omit<CourseData, "id" | "created">;
 type LessonCreate = Omit<LessonData, "id" | "course_id" | "created"> & {
     courseSlug: string;
 };
@@ -34,14 +34,13 @@ export class LmsQuery extends Query {
         return this.db
             .query(
                 /*sql*/ `
-                        INSERT OR IGNORE INTO "courses"
-                        ("slug", "title", "description","lessons", "hours")
-                        VALUES (?, ?, ?, ?, ?)
-                        `
+        INSERT OR IGNORE INTO "courses"
+        ("slug", "title", "description", "lessons", "hours")
+        VALUES (?,?,?,?,?)
+        `
             )
             .run(slug, title, description, lessons, hours);
     }
-
     insertLesson({
         courseSlug,
         slug,
@@ -52,33 +51,16 @@ export class LmsQuery extends Query {
         order,
         free,
     }: LessonCreate) {
-        const course = this.db
-            .prepare(`SELECT "id" FROM "courses" WHERE "slug" = ?`)
-            .get(courseSlug);
-
-        if (!course) {
-            throw new RouteError(404, "Curso não encontrado");
-        }
-
         return this.db
             .query(
                 /*sql*/ `
-            INSERT INTO "lessons"
-            (
-                "course_id",
-                "slug",
-                "title",
-                "seconds",
-                "video",
-                "description",
-                "order",
-                "free"
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `
+        INSERT OR IGNORE INTO "lessons"
+        ("course_id", "slug", "title", "seconds",
+        "video", "description", "order", "free")
+        VALUES ((SELECT "id" FROM "courses" WHERE "slug" = ?),?,?,?,?,?,?,?)`
             )
             .run(
-                course.id,
+                courseSlug,
                 slug,
                 title,
                 seconds,
@@ -93,12 +75,19 @@ export class LmsQuery extends Query {
         return this.db
             .prepare(
                 /*sql*/ `
-            SELECT *
-            FROM "courses"
-            ORDER BY "created" ASC
-            LIMIT 100
-            `
+        SELECT * FROM "courses"
+        ORDER BY "created" ASC LIMIT 100`
             )
             .all() as CourseData[];
+    }
+
+    selectCourse(slug: string) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+        SELECT * FROM "courses"
+        WHERE "slug" = ?`
+            )
+            .get(slug) as CourseData | undefined;
     }
 }

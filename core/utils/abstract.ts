@@ -29,7 +29,6 @@ export abstract class Api extends CoreProvider {
 
 export abstract class Query {
     db: Core["db"];
-
     constructor(db: Core["db"]) {
         this.db = db;
     }

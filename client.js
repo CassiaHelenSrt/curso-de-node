@@ -147,16 +147,14 @@ const lessons = [
 ];
 
 const functions = {
-    async postCourses() {
+    async postCourse() {
         const response = await fetch(base + "/lms/course", {
             method: "POST",
             headers: {
-                "content-type": "application/json",
+                "Content-Type": "application/json",
             },
-
             body: JSON.stringify(courses.javascript),
         });
-
         const body = await response.json();
         console.table(body);
     },
@@ -169,13 +167,6 @@ const functions = {
             },
             body: JSON.stringify(lesson),
         });
-
-        if (!response.ok) {
-            const error = await response.text();
-            console.error("Erro ao criar aula:", error);
-            return;
-        }
-
         const body = await response.json();
         console.table(body);
     },
@@ -185,11 +176,17 @@ const functions = {
         const body = await response.json();
         console.log(body);
     },
+
+    async getCourse() {
+        const response = await fetch(base + "/lms/course/javascript-completo");
+        const body = await response.json();
+        console.log(body);
+    },
 };
 
-for (const lesson of lessons) {
-    await functions.postLesson(lesson);
-}
+// for (const lesson of lessons) {
+//     await functions.postLesson(lesson);
+// }
 
 if (process.argv[2]) {
     functions[process.argv[2]];
