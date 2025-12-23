@@ -68,10 +68,11 @@ export class LmsApi extends Api {
         getCourse: (req, res) => {
             const { slug } = req.params;
             const course = this.query.selectCourse(slug);
+            const lessons = this.query.selectLessons(slug);
             if (!course) {
                 throw new RouteError(404, "curso não encontrado");
             }
-            res.status(200).json(course);
+            res.status(200).json({ course, lessons });
         },
     } satisfies Api["handlers"];
 

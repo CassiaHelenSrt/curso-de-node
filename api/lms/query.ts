@@ -90,4 +90,21 @@ export class LmsQuery extends Query {
             )
             .get(slug) as CourseData | undefined;
     }
+
+    selectLessons(courseSlug: string) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+            SELECT *
+            FROM "lessons"
+            WHERE "course_id" = (
+                SELECT "id"
+                FROM "courses"
+                WHERE "slug" = ?
+            )
+            ORDER BY "order" ASC
+            `
+            )
+            .all(courseSlug) as LessonData[];
+    }
 }
