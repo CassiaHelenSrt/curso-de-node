@@ -182,6 +182,14 @@ const functions = {
         const body = await response.json();
         console.log(body);
     },
+
+    async getLesson() {
+        const response = await fetch(
+            base + "/lms/lesson/javascript-completo/funcoes-basico"
+        );
+        const body = await response.json();
+        console.log(body);
+    },
 };
 
 // for (const lesson of lessons) {
