@@ -185,7 +185,7 @@ const functions = {
 
     async getLesson() {
         const response = await fetch(
-            base + "/lms/lesson/javascript-completo/funcoes-basico"
+            base + "/lms/lesson/javascript-completo/introducao-e-variaveis"
         );
         const body = await response.json();
         console.log(body);

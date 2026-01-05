@@ -79,12 +79,21 @@ export class LmsApi extends Api {
             const { courseSlug, lessonSlug } = req.params;
 
             const lesson = this.query.selectLesson(courseSlug, lessonSlug);
+            const nav = this.query.selectLessonNav(courseSlug, lessonSlug);
 
             if (!lesson) {
                 throw new RouteError(404, "aula não encontrada");
             }
 
-            res.status(200).json(lesson);
+            const i = nav.findIndex((l) => l.slug == lesson.slug);
+            console.log(i);
+
+            const prev = i === 0 ? null : nav.at(i - 1)?.slug;
+
+            /*?? null -> se for undefined*/
+            const next = nav.at(i + 1)?.slug ?? null;
+
+            res.status(200).json({ ...lesson, prev, next });
         },
     } satisfies Api["handlers"];
 
