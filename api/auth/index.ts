@@ -16,19 +16,15 @@ export class AuthApi extends Api {
                 role: "user",
                 password_hash,
             });
-
             if (writeResult.changes === 0) {
-                throw new RouteError(400, "erro ao criar usuario");
+                throw new RouteError(400, "erro ao criar usuário");
             }
-
-            res.status(200).json({ title: "usuário criado" });
+            res.status(201).json({ title: "usuário criado" });
         },
     } satisfies Api["handlers"];
-
     tables(): void {
         this.db.exec(authTables);
     }
-
     routes(): void {
         this.router.post("/auth/user", this.handlers.postUser);
     }

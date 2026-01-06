@@ -140,4 +140,16 @@ export class LmsQuery extends Query {
             )
             .all(courseSlug, lessonSlug) as { slug: string }[];
     }
+
+    insertLessonCompleted(userId: number, courseId: string, lessonId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+            INSERT OR IGNORE INTO "lessons_completed"
+            ("user_id", "course_id", "lesson_id")
+            VALUES (?, ?, ?)
+            `
+            )
+            .run(userId, courseId, lessonId);
+    }
 }

@@ -19,11 +19,10 @@ export class AuthQuery extends Query {
     insertUser({ name, username, email, role, password_hash }: UserCreate) {
         return this.db
             .query(
-                `
-                INSERT OR INGNORE INTO "users" 
-                (name, username, email, role, password_hash)
-                VALUES (?, ?, ?, ?, ?)
-                `
+                /*sql*/ `
+      INSERT OR IGNORE INTO "users"
+      ("name", "username", "email", "role", "password_hash")
+      VALUES (?,?,?,?,?)`
             )
             .run(name, username, email, role, password_hash);
     }

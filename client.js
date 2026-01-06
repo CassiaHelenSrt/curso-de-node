@@ -198,10 +198,25 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: "cassia helen",
-                username: "helen",
-                email: "cassiahelen9213@gmail.com",
+                name: "jhon",
+                username: "marcio",
+                email: "jhon@gmai.com",
                 password: "123456",
+            }),
+        });
+        const body = await response.json();
+        console.table(body);
+    },
+
+    async completeLesson() {
+        const response = await fetch(base + "/lms/lesson/complete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                courseId: "2",
+                lessonId: "50",
             }),
         });
         const body = await response.json();
@@ -214,8 +229,10 @@ const functions = {
 // }
 
 if (process.argv[2]) {
-    functions[process.argv[2]];
+    functions[process.argv[2]]();
 }
+
+console.log(functions[process.argv[2]]());
 
 // if (!functions[fn]) {
 //     console.error("Função não encontrada:", fn);
