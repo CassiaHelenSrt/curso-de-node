@@ -95,15 +95,9 @@ export class LmsQuery extends Query {
         return this.db
             .prepare(
                 /*sql*/ `
-            SELECT *
-            FROM "lessons"
-            WHERE "course_id" = (
-                SELECT "id"
-                FROM "courses"
-                WHERE "slug" = ?
-            )
-            ORDER BY "order" ASC
-            `
+        SELECT * FROM "lessons"
+        WHERE "course_id" = (SELECT "id" FROM "courses" WHERE "slug" = ?)
+        ORDER BY "order" ASC`
             )
             .all(courseSlug) as LessonData[];
     }
@@ -112,44 +106,65 @@ export class LmsQuery extends Query {
         return this.db
             .prepare(
                 /*sql*/ `
-            SELECT *
-            FROM "lessons"
-            WHERE "course_id" = (
-                SELECT "id"
-                FROM "courses"
-                WHERE "slug" = ?
-            )
-            AND "slug" = ?
-            `
+        SELECT * FROM "lessons"
+        WHERE "course_id" = (SELECT "id" FROM "courses" WHERE "slug" = ?)
+        AND "slug" = ?`
             )
             .get(courseSlug, lessonSlug) as LessonData | undefined;
     }
+
     selectLessonNav(courseSlug: string, lessonSlug: string) {
         return this.db
             .prepare(
                 /*sql*/ `
-            SELECT "slug"
-            FROM "lesson_nav"
-            WHERE "course_id" = (
-                SELECT "id"
-                FROM "courses"
-                WHERE "slug" = ?
-            )
-            AND "current_slug" = ?
-            `
+        SELECT "slug" FROM "lesson_nav"
+        WHERE "course_id" = (SELECT "id" FROM "courses" WHERE "slug" = ?)
+        AND "current_slug" = ?`
             )
             .all(courseSlug, lessonSlug) as { slug: string }[];
     }
 
-    insertLessonCompleted(userId: number, courseId: string, lessonId: number) {
+    insertLessonCompleted(userId: number, courseId: number, lessonId: number) {
         return this.db
             .prepare(
                 /*sql*/ `
-            INSERT OR IGNORE INTO "lessons_completed"
-            ("user_id", "course_id", "lesson_id")
-            VALUES (?, ?, ?)
-            `
+        INSERT OR IGNORE INTO "lessons_completed"
+        ("user_id", "course_id", "lesson_id") VALUES
+        (?,?,?)`
             )
             .run(userId, courseId, lessonId);
+    }
+
+    selectLessonCompleted(userId: number, lessonId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+        SELECT "completed" FROM "lessons_completed" WHERE
+        "user_id" = ? AND "lesson_id" = ?`
+            )
+            .get(userId, lessonId) as { completed: string } | undefined;
+    }
+
+    selectLessonsCompleted(userId: number, courseId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+        SELECT "lesson_id", "completed" FROM "lessons_completed" WHERE
+        "user_id" = ? AND "course_id" = ?`
+            )
+            .all(userId, courseId) as {
+            lesson_id: number;
+            completed: string;
+        }[];
+    }
+
+    deleteLessonsCompleted(userId: number, courseId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+        DELETE FROM "lessons_completed" WHERE
+        "user_id" = ? AND "course_id" = ?`
+            )
+            .run(userId, courseId);
     }
 }
