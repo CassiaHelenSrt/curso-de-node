@@ -185,14 +185,14 @@ const functions = {
     },
 
     async getCourse() {
-        const response = await fetch(base + "/lms/course/html-e-css");
+        const response = await fetch(base + "/lms/course/java");
         const body = await response.json();
         console.log(body);
     },
 
     async getLesson() {
         const response = await fetch(
-            base + "/lms/lesson/html-e-css/tecnica-basicas"
+            base + "/lms/lesson/html-e-css-2/tecnica-basicas"
         );
         const body = await response.json();
         console.log(body);
@@ -222,8 +222,8 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                courseId: 2,
-                lessonId: 1,
+                courseId: 1,
+                lessonId: 4,
             }),
         });
         const body = await response.json();
@@ -237,7 +237,7 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                courseId: 1,
+                courseId: 2,
             }),
         });
         const body = await response.json();

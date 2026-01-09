@@ -133,6 +133,7 @@ export class LmsApi extends Api {
                 userId,
                 courseId
             );
+
             if (writeResult.changes === 0) {
                 throw new RouteError(404, "erro ao resetar curso");
             }
