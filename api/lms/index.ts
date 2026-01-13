@@ -1,3 +1,4 @@
+import { Certificate } from "node:crypto";
 import { Api } from "../../core/utils/abstract.ts";
 import { RouteError } from "../../core/utils/route-erro.ts";
 
@@ -113,6 +114,7 @@ export class LmsApi extends Api {
         completeLesson: (req, res) => {
             const userId = 1;
             const { courseId, lessonId } = req.body;
+
             const writeResult = this.query.insertLessonCompleted(
                 userId,
                 courseId,
@@ -121,7 +123,29 @@ export class LmsApi extends Api {
             if (writeResult.changes === 0) {
                 throw new RouteError(400, "erro ao completar aula");
             }
+
+            const progress = this.query.selectProgress(userId, courseId);
+           
+            const incompleteLessons = progress.filter(
+                (item) => !item.completed
+            );
+          
+
+            if (progress.length > 0 && incompleteLessons.length === 0) {
+               const certificate =  this.query.insertCertificate(userId, courseId);
+                  console.log("result", certificate);
+
+                  if(!certificate){
+                     throw new RouteError(404, "erro ao gerar certificado");
+                  }
+                  res.status(201).json({
+                     Certificate: certificate.id,
+                     title: "aula concluída",
+            });
+                return
+            }
             res.status(201).json({
+                Certificate: null ,
                 title: "aula concluída",
             });
         },

@@ -222,8 +222,8 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                courseId: 1,
-                lessonId: 4,
+                courseId: 3,
+                lessonId: 6,
             }),
         });
         const body = await response.json();

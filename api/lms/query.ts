@@ -167,4 +167,32 @@ export class LmsQuery extends Query {
             )
             .run(userId, courseId);
     }
+
+    selectProgress(userId: number, courseId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+            SELECT 
+                l.id AS lesson_id,
+                lc.completed
+            FROM lessons l
+            LEFT JOIN lessons_completed lc 
+            ON l.id = lc.lesson_id 
+            AND lc.user_id = ?
+            WHERE l.course_id = ?
+            `
+            )
+            .all(userId, courseId) as { id: number; completed: string }[];
+    }
+
+    insertCertificate(userId: number, courseId: number) {
+        return this.db
+            .prepare(
+                /*sql*/ `
+            INSERT OR IGNORE INTO "certificate" ("user_id", "course_id")
+            VALUES (?, ?) RETURNING "id"
+            `
+            )
+            .get(userId, courseId)as { id: number | undefined };
+    }
 }
