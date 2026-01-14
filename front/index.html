@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,10 +62,10 @@
 
 
     <script>
-    const from = document.getElementById('login')
+    const form = document.getElementById('login')
     const result  = document.getElementById('result')
 
-    from.addEventListener('submit', async(e) => {
+    form.addEventListener('submit', async(e) => {
         e.preventDefault()
         const data = new FormData(form)
         const response = await fetch("/auth/login", {
@@ -76,6 +76,15 @@
         body: JSON.stringify(Object.fromEntries(data)),
     });
     })
+
+
+    async function autenticado(){
+      const response = await fetch('/segura')
+      const body = await response.json()
+      result.innerText = JSON.stringify(body, null , 2)
+    }
+
+    autenticado()
     </script>
 
 </body>
