@@ -24,23 +24,23 @@ core.router.get("/", async (req, res) => {
 
 
 core.router.get("/segura", async (req, res) => {
-    //esse cookies e o ud do usuario autendicado
-    const cookies = req.headers.cookie?.match(/sid=(\d+)/)?.[1]
+    const cookie = req.headers.cookie;
 
-    if(!cookies){
-         throw new RouteError(404, "não autenticado")
+    const id = cookie?.match(/sid=(\d+)/)?.[1];
+
+    if (!id) {
+        throw new RouteError(401, "não autenticado");
     }
 
-    const user = core.db.query(`SELECT "email", "email" From "users" WHERE "id" =?`).get(cookies)
+    const user = core.db
+        .query(`SELECT "email", "name" FROM "users" WHERE "id" = ?`)
+        .get(id);
 
-    if(!user){
-            throw new RouteError(404, "usuario nao encontrado")
-        }
+    if (!user) {
+        throw new RouteError(404, "usuário não encontrado");
+    }
 
-    console.log(cookies)
-    res.status(200).json(user);
-    // res.status(200).json(cookies);
-    // res.status(200).json('segura');
+    return res.status(200).json(user);
 });
 
 core.init();
