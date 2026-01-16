@@ -75,6 +75,14 @@
         },
         body: JSON.stringify(Object.fromEntries(data)),
     });
+
+    const body = await response.json()
+    result.innerText = JSON.stringify(body, null , 2)
+
+      //atualizar automaticamente
+      if(res.ok){
+        window.location.reload()
+      }
     })
 
 
