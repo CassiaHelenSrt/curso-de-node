@@ -37,13 +37,13 @@ export class AuthApi extends Api {
             }
 
 
-            const {sid_hash} = await this.session.create({
+            const {sid} = await this.session.create({
                  userId: user.id,
                  ip: req.ip,
                  ua: req.headers["user-agent"]?? ''
                 })
 
-            res.setHeader('Set-Cookie', `sid=${sid_hash}; path=/`)
+            res.setHeader('Set-Cookie', `sid=${sid}; path=/`)
             res.status(200).json('teste')
          }
     } satisfies Api["handlers"];
