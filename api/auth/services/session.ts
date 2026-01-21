@@ -1,21 +1,20 @@
-import { CoreProvider } from "../../../core/utils/abstract.ts";
-import { AuthQuery } from "../query.ts";
-import { randomBytesAsync, sha256 } from "../utils.ts";
+import { CoreProvider } from '../../../core/utils/abstract.ts';
+import { AuthQuery } from '../query.ts';
+import { randomBytesAsync, sha256 } from '../utils.ts';
 
-export class SessionService extends CoreProvider{
-    query = new AuthQuery(this.db)
+const ttlSec = 60 * 60 * 24 * 15;
 
-    async create({userId, ip, ua}){
+export class SessionService extends CoreProvider {
+  query = new AuthQuery(this.db);
+  async create({ userId, ip, ua }) {
+    const sid = (await randomBytesAsync(32)).toString('base64url');
+    const sid_hash = sha256(sid);
+    const expires_ms = Date.now() + ttlSec * 1000;
 
-        const sid = (await randomBytesAsync(32)).toString('base64url')
+    this.query.insertSession({ sid_hash, expires_ms, user_id: userId, ip, ua });
 
-        // esse hash esta seguro sem Vulnerabilidade 
-        const sid_hash= sha256(sid)
+    const cookie = `__Secure-sid=${sid}; Path=/; Max-Age=${ttlSec} HttpOnly; Secure; SameSite=Lax`;
 
-        const expires_ms = Date.now() + 60*60*24*15 * 1000
-
-        this.query.insertSession({user_id: userId, ip, ua, sid_hash,  expires_ms})
-
-        return { sid }
-    }
+    return { cookie };
+  }
 }
