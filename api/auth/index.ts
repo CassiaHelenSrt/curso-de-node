@@ -70,12 +70,14 @@ export class AuthApi extends Api {
       res.status(200).json(session)
     }
 
-
-
   } satisfies Api['handlers'];
+
+
   tables(): void {
     this.db.exec(authTables);
   }
+
+  
   routes(): void {
     this.router.post('/auth/user', this.handlers.postUser);
     this.router.post('/auth/login', this.handlers.postLogin);

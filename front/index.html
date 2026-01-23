@@ -87,7 +87,7 @@
 
 
     async function autenticado(){
-      const response = await fetch('/auth/session')
+      const response = await fetch('/lms/course/html-e-css-2')
       const body = await response.json()
       result.innerText = JSON.stringify(body, null , 2)
      
