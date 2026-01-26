@@ -9,9 +9,8 @@ export interface CustomRequest extends IncomingMessage {
     body: Record<string, any>;
     params: Record<string, any>;
     cookies: Record<string, string | undefined>;
-    session: {user_id: number; role: UserRole, expires_ms: number} | null
+    session: {user_id: number; role: UserRole, expires_ms: number} | null;
     ip: string;
-   
 }
 
 export async function customRequest(request: IncomingMessage) {
