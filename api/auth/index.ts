@@ -1,86 +1,82 @@
-import { Api } from '../../core/utils/abstract.ts';
-import { RouteError } from '../../core/utils/route-erro.ts';
-import { AuthQuery } from './query.ts';
-import { COOKIE_SID_KEY, SessionService } from './services/session.ts';
-import { authTables } from './tables.ts';
+import { title } from "process";
+import { Api } from "../../core/utils/abstract.ts";
+import { RouteError } from "../../core/utils/route-erro.ts";
+import { AuthQuery } from "./query.ts";
+import { COOKIE_SID_KEY, SessionService } from "./services/session.ts";
+import { authTables } from "./tables.ts";
 
 export class AuthApi extends Api {
-  query = new AuthQuery(this.db);
-  session = new SessionService(this.core);
-  handlers = {
-    postUser: (req, res) => {
-      const { name, username, email, password } = req.body;
-      const password_hash = password;
-      const writeResult = this.query.insertUser({
-        name,
-        username,
-        email,
-        role: 'user',
-        password_hash,
-      });
-      if (writeResult.changes === 0) {
-        throw new RouteError(400, 'erro ao criar usuário');
-      }
-      res.status(201).json({ title: 'usuário criado' });
-    },
-    postLogin: async (req, res) => {
-      const { email, password } = req.body;
-      const user = this.db
-        .query(
-          /*sql*/ `
+    query = new AuthQuery(this.db);
+    session = new SessionService(this.core);
+    handlers = {
+        postUser: (req, res) => {
+            const { name, username, email, password } = req.body;
+            const password_hash = password;
+            const writeResult = this.query.insertUser({
+                name,
+                username,
+                email,
+                role: "user",
+                password_hash,
+            });
+            if (writeResult.changes === 0) {
+                throw new RouteError(400, "erro ao criar usuário");
+            }
+            res.status(201).json({ title: "usuário criado" });
+        },
+        postLogin: async (req, res) => {
+            const { email, password } = req.body;
+            const user = this.db
+                .query(
+                    /*sql*/ `
           SELECT "id", "password_hash"
           FROM "users" WHERE "email" = ?
         `,
-        )
-        .get(email);
-      if (!user || password !== user.password_hash) {
-        throw new RouteError(404, 'email ou senha incorretos');
-      }
+                )
+                .get(email);
+            if (!user || password !== user.password_hash) {
+                throw new RouteError(404, "email ou senha incorretos");
+            }
 
-      const { cookie } = await this.session.create({
-        userId: user.id,
-        ip: req.ip,
-        ua: req.headers['user-agent'] ?? '',
-      });
+            const { cookie } = await this.session.create({
+                userId: user.id,
+                ip: req.ip,
+                ua: req.headers["user-agent"] ?? "",
+            });
 
-      res.setCookie('pref=dark');
-      res.setCookie(cookie);
-      res.status(200).json({ title: 'autenticado' });
-    },
+            res.setCookie("pref=dark");
+            res.setCookie(cookie);
+            res.status(200).json({ title: "autenticado" });
+        },
 
+        getSession: (req, res) => {
+            if (!req.session) {
+                throw new RouteError(401, "Não autorizado");
+            }
+            res.status(200).json({ title: "valida" });
+        },
 
-    getSession: (req, res) => {
-      const sid = req.cookies[COOKIE_SID_KEY];
-      if(!sid) {
-        throw new RouteError(401, 'Não autorizado')
-      }
+        deleteSession: (req, res) => {
+            const sid = req.cookies[COOKIE_SID_KEY];
+            const { cookie } = this.session.invalidate(sid);
+            res.setCookie(cookie);
 
+            res.setHeader("Cache-Control", "private, no-store");
+            res.setHeader("Vary", "Cookie");
 
-      const {valid, cookie, session} = this.session.validate(sid);
-      res.setCookie(cookie)
+            res.status(204).json({ title: "logout" });
+        },
+    } satisfies Api["handlers"];
 
-      if(!valid || !session){
-        throw new RouteError(401, 'não autorizado')
-      }
-
-      res.setHeader('Cache-Control', 'private, no-store')
-      res.setHeader('Vary','Cookie')
-
-      //voce pode colocar assim caso nao queira mostar o que esta mandando res.status(200).json("session")
-      res.status(200).json(session)
+    tables(): void {
+        this.db.exec(authTables);
     }
 
-  } satisfies Api['handlers'];
-
-
-  tables(): void {
-    this.db.exec(authTables);
-  }
-
-  
-  routes(): void {
-    this.router.post('/auth/user', this.handlers.postUser);
-    this.router.post('/auth/login', this.handlers.postLogin);
-    this.router.post('/auth/session', this.handlers.getSession);
-  }
+    routes(): void {
+        this.router.post("/auth/user", this.handlers.postUser);
+        this.router.post("/auth/login", this.handlers.postLogin);
+        this.router.delete("/auth/logout", this.handlers.deleteSession);
+        this.router.post("/auth/session", this.handlers.getSession);
+        this.router.post("/auth/session", this.handlers.getSession);
+    }
 }
