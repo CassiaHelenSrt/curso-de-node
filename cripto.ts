@@ -1,6 +1,7 @@
 import {
     type BinaryLike,
     type ScryptOptions,
+    createHmac,
     randomBytes,
     scrypt,
 } from "node:crypto";
@@ -15,6 +16,8 @@ const scryptAsync: (
     options?: ScryptOptions,
 ) => Promise<Buffer> = promisify(scrypt);
 
+const PEPPER = "segredo";
+
 const salt = await randomBytesAsync(16);
 
 const SCRYPT_OPTIONS: ScryptOptions = {
@@ -23,11 +26,19 @@ const SCRYPT_OPTIONS: ScryptOptions = {
     p: 1,
 };
 
-console.time("scrypt");
+const password = "P@ssw0rd";
 
-const dk = await scryptAsync("12345678", salt, 32, SCRYPT_OPTIONS);
+const password_normalized = password;
 
-console.timeEnd("scrypt");
+const password_hmac = createHmac("sha256", PEPPER)
+    .update(password_normalized)
+    .digest();
+
+// console.log(password_hmac);
+
+const dk = await scryptAsync(password_hmac, salt, 32, SCRYPT_OPTIONS);
+
+// console.timeEnd("scrypt");
 
 const password_hash = `${salt.toString("hex")}$${dk.toString("hex")}`;
 
