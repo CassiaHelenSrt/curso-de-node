@@ -4,10 +4,13 @@ import { RouteError } from "../../core/utils/route-erro.ts";
 import { AuthQuery } from "./query.ts";
 import { COOKIE_SID_KEY, SessionService } from "./services/session.ts";
 import { authTables } from "./tables.ts";
+import { AuthMiddleware } from "../auth/middleware/auth.ts";
 
 export class AuthApi extends Api {
     query = new AuthQuery(this.db);
     session = new SessionService(this.core);
+    auth = new AuthMiddleware(this.core);
+
     handlers = {
         postUser: (req, res) => {
             const { name, username, email, password } = req.body;
@@ -77,6 +80,8 @@ export class AuthApi extends Api {
         this.router.post("/auth/login", this.handlers.postLogin);
         this.router.delete("/auth/logout", this.handlers.deleteSession);
         this.router.post("/auth/session", this.handlers.getSession);
-        this.router.post("/auth/session", this.handlers.getSession);
+        this.router.post("/auth/session", this.handlers.getSession, [
+            this.auth.guard("user"),
+        ]);
     }
 }
