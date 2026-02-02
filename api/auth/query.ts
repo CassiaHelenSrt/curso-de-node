@@ -52,6 +52,21 @@ export class AuthQuery extends Query {
             )
             .get(value) as { id: number; password_hash: string } | undefined;
     }
+    updateUser(
+        user_id: number,
+        key: "password_hash" | "email" | "name",
+        value: string,
+    ) {
+        return this.db
+            .query(
+                /*sql*/ `
+        UPDATE "users"
+        SET ${key} = ?
+        WHERE "id" = ?
+      `,
+            )
+            .run(value, user_id);
+    }
 
     insertSession({ sid_hash, user_id, expires_ms, ip, ua }: SessionCreate) {
         return this.db

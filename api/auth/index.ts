@@ -70,6 +70,33 @@ export class AuthApi extends Api {
             res.status(200).json({ title: "autenticado" });
         },
 
+        updadePassword: async (req, res) => {
+            const { password, new_password } = req.body;
+
+            if (!req.session) {
+                throw new RouteError(401, "nao autorizado");
+            }
+
+            const user = this.query.selectUser("id", req.session.user_id);
+
+            if (!user) {
+                throw new RouteError(404, "usuario nao encontrado");
+            }
+
+            const validPassword = await this.pass.verify(
+                password,
+                user.password_hash,
+            );
+
+            if (!validPassword) {
+                throw new RouteError(404, "senha atual incorreta");
+            }
+
+            const new_password_hash = await this.pass.hash(new_password);
+
+            this.query.updateUser(user.id, "password_hash", new_password_hash);
+        },
+
         getSession: (req, res) => {
             if (!req.session) {
                 throw new RouteError(401, "Não autorizado");
@@ -97,6 +124,9 @@ export class AuthApi extends Api {
         this.router.post("/auth/user", this.handlers.postUser);
         this.router.post("/auth/login", this.handlers.postLogin);
         this.router.delete("/auth/logout", this.handlers.deleteSession);
+        this.router.put("/auth/update/password", this.handlers.updadePassword, [
+            this.auth.guard("user"),
+        ]);
         this.router.post("/auth/session", this.handlers.getSession);
         this.router.post("/auth/session", this.handlers.getSession, [
             this.auth.guard("user"),
