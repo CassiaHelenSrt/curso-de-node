@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>Tiny LMS</title>
     </head>
     <body>
         <style>
@@ -60,10 +60,9 @@
                     rgba(255, 255, 255, 0.1)
                 );
             }
-
             #logout {
                 max-width: 200px;
-                margin: o auto;
+                margin: 0 auto;
             }
         </style>
 
@@ -71,18 +70,26 @@
             <label for="email">Email</label>
             <input
                 type="email"
-                name="email"
                 id="email"
+                name="email"
                 value="andre@origamid.com"
             />
             <label for="password">Senha</label>
             <input
                 type="password"
-                name="password"
                 id="password"
+                name="password"
                 value="12345678"
             />
             <button>Logar</button>
+        </form>
+
+        <form id="update-password">
+            <label for="password">Senha</label>
+            <input type="password" name="password" value="12345678" />
+            <label for="new_password">Nova Senha</label>
+            <input type="password" name="new_password" value="123456789" />
+            <button>Atualizar Senha</button>
         </form>
 
         <button id="logout">Sair</button>
@@ -90,13 +97,14 @@
         <pre id="result"></pre>
 
         <script>
-            const form = document.getElementById("login");
+            const login = document.getElementById("login");
+            const updatePassword = document.getElementById("update-password");
             const result = document.getElementById("result");
             const logout = document.getElementById("logout");
 
-            form.addEventListener("submit", async (e) => {
+            login.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const data = new FormData(form);
+                const data = new FormData(login);
                 const response = await fetch("/auth/login", {
                     method: "POST",
                     headers: {
@@ -104,12 +112,26 @@
                     },
                     body: JSON.stringify(Object.fromEntries(data)),
                 });
-
                 const body = await response.json();
                 result.innerText = JSON.stringify(body, null, 2);
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
 
-                //atualizar automaticamente
-                if (res.ok) {
+            updatePassword.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const data = new FormData(updatePassword);
+                const response = await fetch("/auth/update/password", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(Object.fromEntries(data)),
+                });
+                const body = await response.json();
+                result.innerText = JSON.stringify(body, null, 2);
+                if (response.ok) {
                     window.location.reload();
                 }
             });
@@ -119,7 +141,6 @@
                 const response = await fetch("/auth/logout", {
                     method: "DELETE",
                 });
-
                 if (response.ok) {
                     window.location.reload();
                 }

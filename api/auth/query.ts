@@ -95,13 +95,22 @@ export class AuthQuery extends Query {
             | undefined;
     }
 
-    revokeSession(key: "sid_hash" | "user_id", sid_hash: Buffer) {
+    revokeSession(sid_hash: Buffer) {
         return this.db
             .query(
                 /* sql */ `
-       UPDATE "sessions" SET "revoked" = 1 WHERE ${key} = ?`,
+       UPDATE "sessions" SET "revoked" = 1 WHERE "sid_hash" = ?`,
             )
             .run(sid_hash);
+    }
+
+    revokeSessions(user_id: number) {
+        return this.db
+            .query(
+                /*sql*/ `
+      UPDATE "sessions" SET "revoked" = 1 WHERE "user_id" = ?`,
+            )
+            .run(user_id);
     }
 
     updateSessionExpires(sid_hash: Buffer, expires_ms: number) {

@@ -26,10 +26,8 @@ export class Password {
         r: 8,
         p: 1,
     };
-
     DK_LEN = 32;
     SALT_LEN = 16;
-
     constructor(PEPPER: string) {
         this.PEPPER = PEPPER;
     }
@@ -61,11 +59,13 @@ export class Password {
         const stored_dk = Buffer.from(stored_dk_hex, "hex");
         const stored_salt = Buffer.from(stored_salt_hex, "hex");
         const stored_norm = norm.replace("norm=", "");
-        const stored_options = options.split(",").reduce((acc, kv) => {
-            const [k, v] = kv.split("=");
-            acc[k] = Number(v);
-            return acc;
-        }, {});
+        const stored_options = options
+            .split(",")
+            .reduce((acc: Record<string, number>, kv) => {
+                const [k, v] = kv.split("=");
+                acc[k] = Number(v);
+                return acc;
+            }, {});
         return {
             stored_options,
             stored_norm,
@@ -75,24 +75,28 @@ export class Password {
     }
 
     async verify(password: string, password_hash: string) {
-        const { stored_options, stored_norm, stored_dk, stored_salt } =
-            this.parse(password_hash);
+        try {
+            const { stored_options, stored_norm, stored_dk, stored_salt } =
+                this.parse(password_hash);
 
-        const password_normalized = password.normalize(stored_norm);
-        const password_hmac = createHmac("sha256", this.PEPPER)
-            .update(password_normalized)
-            .digest();
+            const password_normalized = password.normalize(stored_norm);
+            const password_hmac = createHmac("sha256", this.PEPPER)
+                .update(password_normalized)
+                .digest();
 
-        const dk = await scryptAsync(
-            password_hmac,
-            stored_salt,
-            this.DK_LEN,
-            stored_options,
-        );
+            const dk = await scryptAsync(
+                password_hmac,
+                stored_salt,
+                this.DK_LEN,
+                stored_options,
+            );
 
-        if (dk.length !== stored_dk.length) return false;
+            if (dk.length !== stored_dk.length) return false;
 
-        return timingSafeEqual(dk, stored_dk);
+            return timingSafeEqual(dk, stored_dk);
+        } catch (error) {
+            return false;
+        }
     }
 }
 
