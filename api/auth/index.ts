@@ -122,6 +122,7 @@ export class AuthApi extends Api {
             };
 
             // esta console e para testar jamais faça em producao
+            // revisar esta aula pois esta trazendo erro 404
 
             console.log(mailContent);
 
