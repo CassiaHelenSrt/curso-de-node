@@ -197,7 +197,7 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: "andre",
+                name: "Andre Rafael",
                 username: "andre",
                 email: "andre@origamid.com",
                 password: "12345678",
@@ -214,8 +214,8 @@ const functions = {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                courseId: 2,
-                lessonId: 2,
+                courseId: process.argv[3],
+                lessonId: process.argv[4],
             }),
         });
         const body = await response.json();
@@ -251,9 +251,9 @@ const functions = {
     },
 };
 
-for (const lesson of lessons) {
-    await functions.postLesson(lesson);
-}
+// for (const lesson of lessons) {
+//   await functions.postLesson(lesson);
+// }
 
 if (process.argv[2]) {
     functions[process.argv[2]]();

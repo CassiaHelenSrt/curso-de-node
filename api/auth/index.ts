@@ -5,6 +5,7 @@ import { authTables } from "./tables.ts";
 import { AuthMiddleware } from "./middleware/auth.ts";
 import { Password } from "./utils/password.ts";
 import { RouteError } from "../../core/utils/route-erro.ts";
+import { title } from "process";
 
 export class AuthApi extends Api {
     query = new AuthQuery(this.db);
@@ -64,7 +65,7 @@ export class AuthApi extends Api {
             res.status(200).json({ title: "autenticado" });
         },
 
-        updatePassword: async (req, res) => {
+        passwordUpdate: async (req, res) => {
             const { password, new_password } = req.body;
             if (!req.session) {
                 throw new RouteError(401, "não autorizado");
@@ -99,6 +100,36 @@ export class AuthApi extends Api {
             res.status(200).json({ title: "senha atualizada" });
         },
 
+        passwordForgot: async (req, res) => {
+            const { email } = req.body;
+            const user = this.query.selectUser("email", email);
+            if (!user) {
+                return res.status(200).json({ title: "verifique seu email" });
+            }
+
+            const { token } = await this.session.resetToken({
+                userId: user.id,
+                ip: req.ip,
+                ua: req.headers["user-agent"] || "",
+            });
+
+            const resetLink = `${req.baseurl}/password/reset/?token=${token}`;
+
+            const mailContent = {
+                to: user.email,
+                subject: "Password Reset",
+                body: `Ultilize o link abaixo para resetar a sua senga: \r\n ${resetLink}`,
+            };
+
+            // esta console e para testar jamais faça em producao
+
+            console.log(mailContent);
+
+            res.status(200).json({ title: "verifique seu email" });
+        },
+
+        passwordReset: async (req, res) => {},
+
         getSession: (req, res) => {
             if (!req.session) {
                 throw new RouteError(401, "não autorizado");
@@ -122,7 +153,9 @@ export class AuthApi extends Api {
         this.router.post("/auth/user", this.handlers.postUser);
         this.router.post("/auth/login", this.handlers.postLogin);
         this.router.delete("/auth/logout", this.handlers.deleteSession);
-        this.router.put("/auth/update/password", this.handlers.updatePassword, [
+        this.router.post("/auth/password/forgot", this.handlers.passwordForgot);
+        this.router.post("/auth/password/reset", this.handlers.passwordReset);
+        this.router.put("/auth/password/update", this.handlers.passwordUpdate, [
             this.auth.guard("user"),
         ]);
         this.router.get("/auth/session", this.handlers.getSession, [

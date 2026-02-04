@@ -92,6 +92,13 @@
             <button>Atualizar Senha</button>
         </form>
 
+        <form id="forgot-password">
+            <label for="email"><E-mail></E-mail></label>
+            <input type="email" name="email" value="andre@origamid.com" />
+
+            <button>Esqueci a Senha</button>
+        </form>
+
         <button id="logout">Sair</button>
 
         <pre id="result"></pre>
@@ -99,6 +106,7 @@
         <script>
             const login = document.getElementById("login");
             const updatePassword = document.getElementById("update-password");
+            const forgotPassword = document.getElementById("forgot-password");
             const result = document.getElementById("result");
             const logout = document.getElementById("logout");
 
@@ -122,8 +130,25 @@
             updatePassword.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const data = new FormData(updatePassword);
-                const response = await fetch("/auth/update/password", {
+                const response = await fetch("/auth/password/update", {
                     method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(Object.fromEntries(data)),
+                });
+                const body = await response.json();
+                result.innerText = JSON.stringify(body, null, 2);
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+
+            forgotPassword.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const data = new FormData(forgotPassword);
+                const response = await fetch("/auth/password/forgot", {
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },

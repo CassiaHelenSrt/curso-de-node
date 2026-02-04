@@ -74,12 +74,10 @@ export class LmsApi extends Api {
             if (!course) {
                 throw new RouteError(404, "curso não encontrado");
             }
-
             let completed: {
                 lesson_id: number;
                 completed: string;
             }[] = [];
-
             if (req.session) {
                 completed = this.query.selectLessonsCompleted(
                     req.session.user_id,
@@ -191,7 +189,7 @@ export class LmsApi extends Api {
         this.router.post("/lms/course", this.handlers.postCourse);
         this.router.get("/lms/courses", this.handlers.getCourses);
         this.router.get("/lms/course/:slug", this.handlers.getCourse, [
-            this.auth.guard("user"),
+            this.auth.optional,
         ]);
         this.router.delete("/lms/course/reset", this.handlers.resetCourse);
         this.router.post("/lms/lesson", this.handlers.postLesson);

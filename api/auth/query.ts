@@ -29,6 +29,20 @@ type SessionCreate = Omit<SessionData, "created" | "revoked" | "expires"> & {
     expires_ms: number;
 };
 
+type resetData = {
+    token_hash: Buffer;
+    user_id: number;
+    created: number;
+    expires: number;
+    ip: string;
+    ua: string;
+    revoked: number; //0|1
+};
+
+type resetCreate = Omit<resetData, "created" | "expires"> & {
+    expires_ms: number;
+};
+
 export class AuthQuery extends Query {
     insertUser({ name, username, email, role, password_hash }: UserCreate) {
         return this.db
@@ -40,17 +54,17 @@ export class AuthQuery extends Query {
             )
             .run(name, username, email, role, password_hash);
     }
-
     selectUser(key: "email" | "username" | "id", value: string | number) {
         return this.db
             .query(
                 /*sql*/ `
-        SELECT "id", "password_hash"
-        FROM "users"
-        WHERE ${key} = ?
+        SELECT "id", "email" "password_hash", 
+        FROM "users" WHERE ${key} = ?
       `,
             )
-            .get(value) as { id: number; password_hash: string } | undefined;
+            .get(value) as
+            | { id: number; email: string; password_hash: string }
+            | undefined;
     }
     updateUser(
         user_id: number,
@@ -60,50 +74,41 @@ export class AuthQuery extends Query {
         return this.db
             .query(
                 /*sql*/ `
-        UPDATE "users"
-        SET ${key} = ?
+        UPDATE "users" SET ${key} = ?
         WHERE "id" = ?
       `,
             )
             .run(value, user_id);
     }
-
     insertSession({ sid_hash, user_id, expires_ms, ip, ua }: SessionCreate) {
         return this.db
             .query(
                 /*sql*/ `
-        INSERT OR IGNORE INTO "sessions"
-        ("sid_hash", "user_id", "expires", "ip","ua")
-        VALUES (?,?,?,?,?)`,
+      INSERT OR IGNORE INTO "sessions"
+      ("sid_hash", "user_id", "expires", "ip", "ua")
+      VALUES (?,?,?,?,?)`,
             )
             .run(sid_hash, user_id, Math.floor(expires_ms / 1000), ip, ua);
     }
-
     selectSession(sid_hash: Buffer) {
         return this.db
             .query(
-                /* sql */ `
-        SELECT 
-          "s".*, 
-          "s"."expires" * 1000 as "expires_ms"
-        FROM "sessions" as "s"
-        WHERE "sid_hash" = ?
-      `,
+                /*sql*/ `
+      SELECT "s".*, "s"."expires" * 1000 as "expires_ms" FROM "sessions" as "s"
+      WHERE "sid_hash" = ?`,
             )
             .get(sid_hash) as
-            | (SessionData & { expires_ms: Number })
+            | (SessionData & { expires_ms: number })
             | undefined;
     }
-
     revokeSession(sid_hash: Buffer) {
         return this.db
             .query(
-                /* sql */ `
-       UPDATE "sessions" SET "revoked" = 1 WHERE "sid_hash" = ?`,
+                /*sql*/ `
+      UPDATE "sessions" SET "revoked" = 1 WHERE "sid_hash" = ?`,
             )
             .run(sid_hash);
     }
-
     revokeSessions(user_id: number) {
         return this.db
             .query(
@@ -112,25 +117,31 @@ export class AuthQuery extends Query {
             )
             .run(user_id);
     }
-
     updateSessionExpires(sid_hash: Buffer, expires_ms: number) {
         return this.db
             .query(
-                /* sql */ `
-        UPDATE "sessions"
-        SET "expires" = ?
-        WHERE "sid_hash" = ?
-      `,
+                /*sql*/ `
+      UPDATE "sessions" SET "expires" = ? WHERE "sid_hash" = ?`,
             )
             .run(Math.floor(expires_ms / 1000), sid_hash);
     }
-
     selectUserRole(id: number) {
         return this.db
             .query(
-                /* sql */ `
-        SELECT "role" FROM "users" WHERE "id" = ?`,
+                /*sql*/ `
+      SELECT "role" FROM "users" WHERE "id" = ?`,
             )
             .get(id) as { role: UserRole } | undefined;
+    }
+
+    insertReset({ token_hash, user_id, expires_ms, ip, ua }: resetCreate) {
+        return this.db
+            .query(
+                /*sql*/ `
+      INSERT OR IGNORE INTO "resets"
+      ("token_hash", "user_id", "expires", "ip", "ua")
+      VALUES (?,?,?,?,?)`,
+            )
+            .run(token_hash, user_id, Math.floor(expires_ms / 1000), ip, ua);
     }
 }
