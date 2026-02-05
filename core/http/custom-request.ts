@@ -23,7 +23,7 @@ export async function customRequest(request: IncomingMessage) {
     req.cookies = parseCookies(req.headers.cookie);
     req.ip = req.socket.remoteAddress || "127.0.0.1";
     req.session = null;
-    req.baseurl = "http://localhost:300";
+    req.baseurl = "http://localhost:3000";
 
     return req;
 }

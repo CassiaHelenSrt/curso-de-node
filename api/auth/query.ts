@@ -36,7 +36,6 @@ type resetData = {
     expires: number;
     ip: string;
     ua: string;
-    revoked: number; //0|1
 };
 
 type resetCreate = Omit<resetData, "created" | "expires"> & {
@@ -58,7 +57,7 @@ export class AuthQuery extends Query {
         return this.db
             .query(
                 /*sql*/ `
-        SELECT "id", "email" "password_hash", 
+        SELECT "id", "password_hash", "email" 
         FROM "users" WHERE ${key} = ?
       `,
             )

@@ -115,7 +115,13 @@ export class SessionService extends CoreProvider {
         const token = (await randomBytesAsync(32)).toString("base64url");
         const token_hash = sha256(token);
         const expires_ms = Date.now() + 1000 * 60 * 30;
-        this.query.insertReset({ token_hash, expires_ms, user_id, ip, ua });
+        this.query.insertReset({
+            token_hash,
+            expires_ms,
+            user_id: userId,
+            ip,
+            ua,
+        });
         return { token };
         // nao e o token hash que envia para o usuario
     }

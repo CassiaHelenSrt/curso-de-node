@@ -118,10 +118,10 @@ export class AuthApi extends Api {
             const mailContent = {
                 to: user.email,
                 subject: "Password Reset",
-                body: `Ultilize o link abaixo para resetar a sua senga: \r\n ${resetLink}`,
+                body: `Ultilize o link abaixo para resetar a sua senha: \r\n ${resetLink}`,
             };
 
-            // esta console e para testar jamais faça em producao
+            // este console e para testar jamais faça em producao
             // revisar esta aula pois esta trazendo erro 404
 
             console.log(mailContent);
