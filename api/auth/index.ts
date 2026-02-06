@@ -5,7 +5,6 @@ import { authTables } from "./tables.ts";
 import { AuthMiddleware } from "./middleware/auth.ts";
 import { Password } from "./utils/password.ts";
 import { RouteError } from "../../core/utils/route-erro.ts";
-import { title } from "process";
 
 export class AuthApi extends Api {
     query = new AuthQuery(this.db);
@@ -106,7 +105,6 @@ export class AuthApi extends Api {
             if (!user) {
                 return res.status(200).json({ title: "verifique seu email" });
             }
-
             const { token } = await this.session.resetToken({
                 userId: user.id,
                 ip: req.ip,
@@ -118,18 +116,30 @@ export class AuthApi extends Api {
             const mailContent = {
                 to: user.email,
                 subject: "Password Reset",
-                body: `Ultilize o link abaixo para resetar a sua senha: \r\n ${resetLink}`,
+                body: `Utilize o link abaixo para resetar a sua senha: \r\n ${resetLink}`,
             };
 
-            // este console e para testar jamais faça em producao
-            // revisar esta aula pois esta trazendo erro 404
-
             console.log(mailContent);
-
             res.status(200).json({ title: "verifique seu email" });
         },
 
-        passwordReset: async (req, res) => {},
+        passwordReset: async (req, res) => {
+            const { new_password, token } = req.body;
+            const reset = this.session.validateToken(token);
+            if (!reset) {
+                throw new RouteError(400, "token inválido");
+            }
+            const new_password_hash = await this.pass.hash(new_password);
+            const updateResult = this.query.updateUser(
+                reset.user_id,
+                "password_hash",
+                new_password_hash,
+            );
+            if (updateResult.changes === 0) {
+                throw new RouteError(400, "erro ao atualizar senha");
+            }
+            res.status(200).json({ title: "senha atualizada" });
+        },
 
         getSession: (req, res) => {
             if (!req.session) {
