@@ -249,6 +249,18 @@ const functions = {
         const body = await response.json();
         console.log(body);
     },
+
+    async postBig() {
+        const response = await fetch(base + "/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify("a".repeat(3_000_000)),
+        });
+        const body = await response.json();
+        console.log(body);
+    },
 };
 
 // for (const lesson of lessons) {
